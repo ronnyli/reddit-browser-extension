@@ -1,0 +1,22 @@
+{
+    "manifest_version": 2,
+    "name": "Ronny's Browser Extension",
+    "version": "0.0.1",
+    "description": "Create Reddit posts from a browser extension",
+    "homepage_url": "https://github.com/ronnyli/reddit-browser-extension",
+    "minimum_chrome_version": "55",
+    "icons": {
+        // http://icons.iconarchive.com/ihttp://icons.iconarchive.com/icons/limav/flat-gradient-social/128/Reddit-icon.pngcons/limav/flat-gradient-social/128/Reddit-icon.png
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "icon16.png"
+        },
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "tabs"
+    ]
+}
