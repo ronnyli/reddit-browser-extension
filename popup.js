@@ -47,8 +47,12 @@ function getCurrentTabUrl(callback) {
   // alert(url); // Shows "undefined", because chrome.tabs.query is async.
 }
 
-function renderStatus(statusText) {
-  document.getElementById('status').textContent = statusText;
+function signinReddit(){
+  chrome.identity.launchWebAuthFlow(
+  {'url': '<url-to-do-auth>', 'interactive': true},
+  function(redirect_url) {
+    /* Extract token from redirect_url */
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

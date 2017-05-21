@@ -17,6 +17,11 @@
         "default_popup": "popup.html"
     },
     "permissions": [
-        "tabs"
+        "identity",
+        "tabs",
+        "http://reddit.com/*",
+        "https://reddit.com/*",
+        "http://*.reddit.com/*",
+        "https://*.reddit.com/*"
     ]
 }
