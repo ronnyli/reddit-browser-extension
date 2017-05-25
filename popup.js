@@ -1,7 +1,3 @@
-// Copyright (c) 2014 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 /**
  * Get the current URL.
  *
@@ -44,7 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-(function() {
+// TODO: login does not persist across browser_action sessions
+var auth_flow = (function() {
   'use strict';
 
   var signin_button;
@@ -55,6 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Replace clientId and clientSecret with values obtained by you for your
     // application https://github.com/settings/applications.
     var clientId = 'WVBdzQjziRt8jQ';
+    // TODO: Does the redirect URL on Reddit's side need to be programmatic?
+    //       The app ID appears to change from one comp to next
     var redirectUri = chrome.identity.getRedirectURL('provider_cb');
     var redirectRe = new RegExp(redirectUri + '[#\?](.*)');
 
@@ -75,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                  '&redirect_uri=' + encodeURIComponent(redirectUri) +
                  '&response_type=token' +
                  '&state=TODO' +
-                 '&scope=' + encodeURIComponent('identity')
+                 '&scope=' + encodeURIComponent('identity submit')
         }
         chrome.identity.launchWebAuthFlow(options, function(redirectUri) {
           console.log('launchWebAuthFlow completed', chrome.runtime.lastError,
@@ -121,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
           else 
             callback(new Error('Neither access_token nor code avialable.'));
         }
-
+        // TODO: delete or modify this function
         function exchangeCodeForToken(code) {
           var xhr = new XMLHttpRequest();
           xhr.open('GET',
@@ -189,6 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var xhr = new XMLHttpRequest();
       xhr.open(method, url);
       xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+      xhr.setRequestHeader('UserAgent', chrome.runtime.id + ':' + 'v0.0.1' + ' (by /u/sirius_li)');
       xhr.onload = requestComplete;
       xhr.send();
     }
@@ -206,11 +206,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // API calls
+
   function getUserInfo(interactive) {
     xhrWithAuth('GET',
                 'https://oauth.reddit.com/api/v1/me',
                 interactive,
                 onUserInfoFetched);
+  }
+
+  function postSubmit(interactive) {
+    var url = 'https://oauth.reddit.com/api/v1/submit' +
+              '?api_type=json' +
+              '&kind=link' +
+              '&resubmit=true' +
+              '&sendreplies=true' +
+              '&sr=' + 'test' +
+              //'&text=' + '' +
+              '&title=' + 'test' +
+              '&url=' + encodeURIComponent('https://www.google.com')
+
+    xhrWithAuth('POST',
+                url,
+                interactive,
+                onSubmission);
   }
 
   // Functions updating the User Interface:
@@ -241,6 +260,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  function onSubmission(error, status, response) {
+    if (!error && status == 200) {
+      console.log("Got the following submission response: " + response);
+      alert("Got the following submission response: " + response);
+    } else {
+      console.log('submission failed', error, status);
+    }
+  }
+
   function populateUserInfo(user_info) {
     var elem = user_info_div;
     var nameElem = document.createElement('div');
@@ -258,6 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showButton(signin_button);
       } else {
         getUserInfo(true);
+        postSubmit(true);
       }
     });
   }
@@ -290,4 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
       getUserInfo(false);
     }
   };
-})().onload();
+})();
+
+window.onload = auth_flow.onload;
