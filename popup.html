@@ -27,7 +27,10 @@
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
      -->
-    <script src="popup.js"></script>
+    <!--
+      NOTE: b_popup.js created by running `browserify popup.js -o b_popup.js`
+    -->
+    <script src="b_popup.js"></script>
   </head>
   <body>
     <div id="user_info"></div>

@@ -1,0 +1,17 @@
+# TODO:
+- get posting to work within extension
+- login does not persist across sessions
+
+
+# Snoowrap can work with installed apps :)
+- snoowrap.getAuthUrl
+- snoowrap.fromAuthCode
+# Source node_modules
+`browserify popup.js -o b_popup.js`
+# Install dependencies with 
+`sudo npm install snoowrap --save`
+# How to test shit
+- Edit scratch.js
+- Open scratch.html in browser
+# Version of Snoowrap
+- 1.14.0
