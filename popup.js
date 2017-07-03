@@ -59,10 +59,18 @@ var auth_flow = (function() {
     var redirectRe = new RegExp(redirectUri + '[#\?](.*)');
     var userAgent = chrome.runtime.id + ':' + 'v0.0.1' + ' (by /u/sirius_li)'
 
-    var access_token = null;
+    var snoowrap_requester = null;
 
     return {
       getSnoowrap: function(interactive, callback) {
+        // In case we already have a snoowrap requester cached, simply return it.
+        if (snoowrap_requester) {
+          console.log('Getting existing snoowrap_requester');
+          snoowrap_requester.getMe().then(console.log);
+          callback(null, snoowrap_requester);
+          return;
+        }
+
         var authenticationUrl = snoowrap.getAuthUrl({
           clientId: clientId,
           scope: ['identity', 'submit'],
@@ -96,11 +104,26 @@ var auth_flow = (function() {
             var code = new URL(redirectUri).searchParams.get('code');
             console.log('Snoowrap received code:', code);
             console.log('fromAuthCode:', code, userAgent, clientId, redirectUri);
-            return callback(null, code);
+            setSnoowrap(code);
           } else {
             callback(new Error('Invalid redirect URI'));
           }
         });
+
+        function setSnoowrap(auth_code) {
+          snoowrap_requester = snoowrap.fromAuthCode({
+            code: auth_code,
+            userAgent: userAgent,
+            clientId: clientId,
+            redirectUri: redirectUri
+          });
+          console.log('Setting snoowrap_requester');
+          snoowrap_requester.then(r => {
+            // Now we have a requester that can access reddit through the user's account
+            return r.getMe().then(console.log);
+          });
+          callback(null, snoowrap_requester);
+        }
       },
 
       removeCachedToken: function(token_to_remove) {
@@ -112,20 +135,9 @@ var auth_flow = (function() {
 
   // API calls
 
-  function getUserInfo(interactive, token) {
-    var clientId = 'WVBdzQjziRt8jQ';
-    // TODO: Does the redirect URL on Reddit's side need to be programmatic?
-    //       The app ID appears to change from one comp to next
-    var redirectUri = chrome.identity.getRedirectURL('provider_cb');
-    var userAgent = chrome.runtime.id + ':' + 'v0.0.1' + ' (by /u/sirius_li)'
-    snoowrap.fromAuthCode({
-      code: token,
-      userAgent: userAgent,
-      clientId: clientId,
-      redirectUri: redirectUri
-    }).then(r => {
-      // Now we have a requester that can access reddit through the user's account
-      return r.getMe().then(onUserInfoFetched);
+  function getUserInfo(snoowrap_requester) {
+    snoowrap_requester.then(r => {
+      return r.getMe().then(onUserInfoFetched)
     });
   }
 
@@ -151,15 +163,6 @@ var auth_flow = (function() {
     showButton(revoke_button);
   }
 
-  function onSubmission(error, status, response) {
-    if (!error && status == 200) {
-      console.log("Got the following submission response: " + response);
-      alert("Got the following submission response: " + response);
-    } else {
-      console.log('submission failed', error, status);
-    }
-  }
-
   function populateUserInfo(reddituser) {
     var elem = user_info_div;
     var nameElem = document.createElement('div');
@@ -171,11 +174,11 @@ var auth_flow = (function() {
 
   function interactiveSignIn() {
     disableButton(signin_button);
-    tokenFetcher.getSnoowrap(true, function(error, token) {
+    tokenFetcher.getSnoowrap(true, function(error, snoowrap_requester) {
       if (error) {
         showButton(signin_button);
       } else {
-        getUserInfo(true, token);
+        getUserInfo(snoowrap_requester);
       }
     });
   }
