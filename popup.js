@@ -48,6 +48,7 @@ var auth_flow = (function() {
   var signin_button;
   var revoke_button;
   var user_info_div;
+  var newpost;
 
   var tokenFetcher = (function() {
     // Replace clientId and clientSecret with values obtained by you for your
@@ -66,7 +67,9 @@ var auth_flow = (function() {
         // In case we already have a snoowrap requester cached, simply return it.
         if (snoowrap_requester) {
           console.log('Getting existing snoowrap_requester');
-          snoowrap_requester.getMe().then(console.log);
+          snoowrap_requester.then(r => {
+            r.getMe().then(console.log);
+          });
           callback(null, snoowrap_requester);
           return;
         }
@@ -119,8 +122,7 @@ var auth_flow = (function() {
           });
           console.log('Setting snoowrap_requester');
           snoowrap_requester.then(r => {
-            // Now we have a requester that can access reddit through the user's account
-            return r.getMe().then(console.log);
+            r.getMe().then(console.log);
           });
           callback(null, snoowrap_requester);
         }
@@ -138,6 +140,18 @@ var auth_flow = (function() {
   function getUserInfo(snoowrap_requester) {
     snoowrap_requester.then(r => {
       return r.getMe().then(onUserInfoFetched)
+    });
+  }
+
+  function redditSubmit(snoowrap_requester) {
+    var link = document.querySelector('#newpostURL').value;
+    console.log('making a post for', link);
+    snoowrap_requester.then(r => {
+      r.submitLink({
+        subredditName: 'test',
+        title: link,
+        url: link
+      }).then(console.log)
     });
   }
 
@@ -183,6 +197,16 @@ var auth_flow = (function() {
     });
   }
 
+  function submitPost() {
+    tokenFetcher.getSnoowrap(false, function(error, snoowrap_requester) {
+      if (error) {
+        console.log(error);
+      } else {
+        redditSubmit(snoowrap_requester);
+      }
+    });
+  }
+
   function revokeToken() {
     // We are opening the web page that allows user to revoke their token.
     window.open('https://github.com/settings/applications');
@@ -205,10 +229,12 @@ var auth_flow = (function() {
 
       user_info_div = document.querySelector('#user_info');
 
+      newpost = document.querySelector('#newpost');
+      newpost.onsubmit = submitPost;
+
       console.log(signin_button, revoke_button, user_info_div);
 
       showButton(signin_button);
-      // getUserInfo(false); NO IDEA WHAT THIS DOES
     }
   };
 })();

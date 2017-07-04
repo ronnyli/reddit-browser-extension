@@ -1,15 +1,19 @@
 # TODO:
-- get posting to work within extension
+- posting kind of works. Need to make it consistent
+  * extension popup refreshes itself and console.logs the buttons again. Why?
+  * need to press Submit Post twice to trigger the post?
 - login does not persist across sessions
+  * double-check snoowrap_requester will automatically refresh upon expiration
+- search for posts based on current tab URL
+- make errors from failed posts visible (rate limit, etc.)
 
 
+# Have to use snoowrap_requester.then() to deal with async issues
 # Snoowrap can work with installed apps :)
 - snoowrap.getAuthUrl
 - snoowrap.fromAuthCode
-# Source node_modules
-`browserify popup.js -o b_popup.js`
-# Install dependencies with 
-`sudo npm install snoowrap --save`
+# Source node_modules `browserify popup.js -o b_popup.js`
+# Install dependencies with `sudo npm install snoowrap --save`
 # How to test shit
 - Edit scratch.js
 - Open scratch.html in browser
