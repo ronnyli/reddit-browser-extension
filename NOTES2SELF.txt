@@ -1,6 +1,6 @@
 # TODO:
 - posting kind of works. Need to make it consistent
-  * extension popup refreshes itself and console.logs the buttons again. Why?
+  * extension popup refreshes itself and console.logs the buttons again. Why? I think snoowrap triggers it.
   * need to press Submit Post twice to trigger the post?
 - login does not persist across sessions
   * double-check snoowrap_requester will automatically refresh upon expiration
