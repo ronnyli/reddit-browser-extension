@@ -67,9 +67,12 @@ var auth_flow = (function() {
         // In case we already have a snoowrap requester cached, simply return it.
         if (snoowrap_requester) {
           console.log('Getting existing snoowrap_requester');
-          snoowrap_requester.then(r => {
-            r.getMe().then(console.log);
-          });
+          console.log(snoowrap_requester);
+          snoowrap_requester
+            .getMe()
+            .then(function(resp) {
+              console.log('Wassup ', resp.name);
+            });
           callback(null, snoowrap_requester);
           return;
         }
@@ -114,17 +117,19 @@ var auth_flow = (function() {
         });
 
         function setSnoowrap(auth_code) {
-          snoowrap_requester = snoowrap.fromAuthCode({
+          var snoowrap_promise = snoowrap.fromAuthCode({
             code: auth_code,
             userAgent: userAgent,
             clientId: clientId,
             redirectUri: redirectUri
           });
           console.log('Setting snoowrap_requester');
-          snoowrap_requester.then(r => {
+          snoowrap_promise.then(r => {
+            console.log(r);
+            snoowrap_requester = r;
             r.getMe().then(console.log);
+            callback(null, snoowrap_requester);
           });
-          callback(null, snoowrap_requester);
         }
       },
 
@@ -138,21 +143,22 @@ var auth_flow = (function() {
   // API calls
 
   function getUserInfo(snoowrap_requester) {
-    snoowrap_requester.then(r => {
-      return r.getMe().then(onUserInfoFetched)
-    });
+    snoowrap_requester.getMe().then(onUserInfoFetched)
   }
 
   function redditSubmit(snoowrap_requester) {
     var link = document.querySelector('#newpostURL').value;
     console.log('making a post for', link);
-    snoowrap_requester.then(r => {
-      r.submitLink({
+    snoowrap_requester
+      .submitLink({
         subredditName: 'test',
         title: link,
         url: link
-      }).then(console.log)
-    });
+      })
+      .then(console.log)
+      .catch(function (err){
+        console.log(err);
+      });
   }
 
   // Functions updating the User Interface:
