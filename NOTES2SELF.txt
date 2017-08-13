@@ -1,5 +1,6 @@
 # TODO:
 - login does not persist across sessions
+  * http://lifehacker.com/5857721/how-to-build-a-chrome-extension
   * double-check snoowrap_requester will automatically refresh upon expiration
 - search for posts based on current tab URL
 
