@@ -1,11 +1,7 @@
 # TODO:
-- posting kind of works. Need to make it consistent
-  * extension popup refreshes itself and console.logs the buttons again. Why? I think snoowrap triggers it.
-  * need to press Submit Post twice to trigger the post?
 - login does not persist across sessions
   * double-check snoowrap_requester will automatically refresh upon expiration
 - search for posts based on current tab URL
-- make errors from failed posts visible (rate limit, etc.)
 
 
 # Have to use snoowrap_requester.then() to deal with async issues
@@ -19,3 +15,4 @@
 - Open scratch.html in browser
 # Version of Snoowrap
 - 1.14.0
+# Forms refresh on submit. Can be prevented with button type or return false on submit

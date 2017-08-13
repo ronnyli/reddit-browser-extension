@@ -48,6 +48,7 @@ var auth_flow = (function() {
   var signin_button;
   var revoke_button;
   var user_info_div;
+  var post_info_div;
   var newpost;
 
   var tokenFetcher = (function() {
@@ -155,9 +156,11 @@ var auth_flow = (function() {
         title: link,
         url: link
       })
-      .then(console.log)
+      .then(function (submission) {
+        populatePostInfo('successful post');
+      })
       .catch(function (err){
-        console.log(err);
+        populatePostInfo(err);
       });
   }
 
@@ -190,6 +193,11 @@ var auth_flow = (function() {
     elem.appendChild(nameElem);
   }
 
+  function populatePostInfo(info) {
+    var elem = post_info_div;
+    elem.innerHTML = info;
+  }
+
   // Handlers for the buttons's onclick events.
 
   function interactiveSignIn() {
@@ -207,10 +215,12 @@ var auth_flow = (function() {
     tokenFetcher.getSnoowrap(false, function(error, snoowrap_requester) {
       if (error) {
         console.log(error);
+        populatePostInfo(error);
       } else {
         redditSubmit(snoowrap_requester);
       }
     });
+    return false;
   }
 
   function revokeToken() {
@@ -229,11 +239,13 @@ var auth_flow = (function() {
     onload: function () {
       signin_button = document.querySelector('#signin');
       signin_button.onclick = interactiveSignIn;
+      signin_button.type = 'button';
 
       revoke_button = document.querySelector('#revoke');
       revoke_button.onclick = revokeToken;
 
       user_info_div = document.querySelector('#user_info');
+      post_info_div = document.querySelector('#post_info');
 
       newpost = document.querySelector('#newpost');
       newpost.onsubmit = submitPost;
