@@ -16,6 +16,7 @@
         },
         "default_popup": "popup.html"
     },
+    "background_page": "background.html",
     "permissions": [
         "identity",
         "tabs",
