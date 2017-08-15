@@ -2,6 +2,9 @@
 - login does not persist across sessions
   * http://lifehacker.com/5857721/how-to-build-a-chrome-extension
   * double-check snoowrap_requester will automatically refresh upon expiration
+  * interactive sign in is triggering but response is not being passed through
+    * probably because it's not a JSON response object?
+    * after accepting Reddit sign-in, everything freezes. Why?
 - search for posts based on current tab URL
 
 
