@@ -4,6 +4,12 @@
   * double-check snoowrap_requester will automatically refresh upon expiration
   * interactive sign in is triggering but response is not being passed through
     * probably because it's not a JSON response object?
+        * try message passing this JSON: {
+            userAgent:
+            clientId:
+            clientSecret: ""
+            refreshToken:
+        } instead of passing snoowrap_requester
     * after accepting Reddit sign-in, everything freezes. Why?
 - search for posts based on current tab URL
 
