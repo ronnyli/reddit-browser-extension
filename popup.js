@@ -54,6 +54,7 @@ var auth_flow = (function() {
   // API calls
 
   function getUserInfo(snoowrap_requester_json) {
+    var snoowrap_requester;
     snoowrap_requester = JSON.parse(snoowrap_requester_json);
     snoowrap_requester.getMe().then(onUserInfoFetched)
   }
@@ -118,6 +119,7 @@ var auth_flow = (function() {
         'interactive' : true
       },
       function(snoowrap_requester_json) {
+        console.log(snoowrap_requester_json);
         if (snoowrap_requester_json) {
           getUserInfo(snoowrap_requester_json);
         } else {

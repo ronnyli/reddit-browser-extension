@@ -3,7 +3,7 @@ var tokenFetcher = (function() {
 const snoowrap = require('snoowrap');
   // Replace clientId and clientSecret with values obtained by you for your
   // application https://github.com/settings/applications.
-  var clientId = '6fqzCTIJJlk5JQ';
+  var clientId = 'WVBdzQjziRt8jQ';
   // TODO: Does the redirect URL on Reddit's side need to be programmatic?
   //       The app ID appears to change from one comp to next
   var redirectUri = chrome.identity.getRedirectURL('provider_cb');
