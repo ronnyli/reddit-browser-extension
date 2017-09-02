@@ -64,21 +64,27 @@ var auth_flow = (function() {
     r.getMe().then(onUserInfoFetched)
   }
 
-  function redditSubmit(snoowrap_requester) {
+  function redditSubmit(snoowrap_requester_json) {
+    var j = JSON.parse(snoowrap_requester_json);
+    const r = new snoowrap({
+      userAgent: j.userAgent,
+      clientId: j.clientId,
+      clientSecret: '',
+      refreshToken: j.refreshToken
+    });
     var link = document.querySelector('#newpostURL').value;
     console.log('making a post for', link);
-    snoowrap_requester
-      .submitLink({
-        subredditName: 'test',
-        title: link,
-        url: link
-      })
-      .then(function (submission) {
-        populatePostInfo('successful post');
-      })
-      .catch(function (err){
-        populatePostInfo(err);
-      });
+    r.submitLink({
+      subredditName: 'test',
+      title: link,
+      url: link
+    })
+    .then(function (submission) {
+      populatePostInfo('successful post');
+    })
+    .catch(function (err){
+      populatePostInfo(err);
+    });
   }
 
   // Functions updating the User Interface:
@@ -134,13 +140,17 @@ var auth_flow = (function() {
   }
 
   function submitPost() {
-    tokenFetcher.getSnoowrap(false, function(error, snoowrap_requester) {
-      if (error) {
-        console.log(error);
-        populatePostInfo(error);
-      } else {
-        redditSubmit(snoowrap_requester);
-      }
+    chrome.runtime.sendMessage({
+        'action' : 'getSnoowrap',
+        'interactive' : true
+      },
+      function(snoowrap_requester_json) {
+        console.log(snoowrap_requester_json);
+        if (snoowrap_requester_json) {
+          redditSubmit(snoowrap_requester_json);
+        } else {
+          populatePostInfo('Error: submitPost message passing');
+        }
     });
     return false;
   }
