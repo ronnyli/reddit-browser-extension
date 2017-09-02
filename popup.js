@@ -52,8 +52,7 @@ var auth_flow = (function() {
   var newpost;
 
   // API calls
-
-  function getUserInfo(snoowrap_requester_json) {
+  function newSnoowrap(snoowrap_requester_json) {
     var j = JSON.parse(snoowrap_requester_json);
     const r = new snoowrap({
       userAgent: j.userAgent,
@@ -61,17 +60,16 @@ var auth_flow = (function() {
       clientSecret: '',
       refreshToken: j.refreshToken
     });
+    return r;
+  }
+
+  function getUserInfo(snoowrap_requester_json) {
+    const r = newSnoowrap(snoowrap_requester_json);
     r.getMe().then(onUserInfoFetched)
   }
 
   function redditSubmit(snoowrap_requester_json) {
-    var j = JSON.parse(snoowrap_requester_json);
-    const r = new snoowrap({
-      userAgent: j.userAgent,
-      clientId: j.clientId,
-      clientSecret: '',
-      refreshToken: j.refreshToken
-    });
+    const r = newSnoowrap(snoowrap_requester_json);
     var link = document.querySelector('#newpostURL').value;
     console.log('making a post for', link);
     r.submitLink({
