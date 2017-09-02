@@ -54,9 +54,14 @@ var auth_flow = (function() {
   // API calls
 
   function getUserInfo(snoowrap_requester_json) {
-    var snoowrap_requester;
-    snoowrap_requester = JSON.parse(snoowrap_requester_json);
-    snoowrap_requester.getMe().then(onUserInfoFetched)
+    var j = JSON.parse(snoowrap_requester_json);
+    const r = new snoowrap({
+      userAgent: j.userAgent,
+      clientId: j.clientId,
+      clientSecret: '',
+      refreshToken: j.refreshToken
+    });
+    r.getMe().then(onUserInfoFetched)
   }
 
   function redditSubmit(snoowrap_requester) {

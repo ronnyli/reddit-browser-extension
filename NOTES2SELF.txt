@@ -14,6 +14,7 @@
 - search for posts based on current tab URL
 
 
+# append `return true;` to onMessage event handler for async
 # Have to use snoowrap_requester.then() to deal with async issues
 # Snoowrap can work with installed apps :)
 - snoowrap.getAuthUrl

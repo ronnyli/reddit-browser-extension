@@ -93,6 +93,7 @@ function onRequest(request, sender, callback) {
   // Controls which functions are triggered when actions are sent from popup.js
   if (request.action == 'getSnoowrap') {
     tokenFetcher.getSnoowrap(request.interactive, callback);
+    return true;
   }
 }
 
