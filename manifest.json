@@ -16,12 +16,18 @@
         },
         "default_popup": "popup.html"
     },
+    "background": {
+        "scripts": ["b_background.js"],
+        "persistent": false
+    },
     "permissions": [
         "identity",
-        "tabs",
-        "http://reddit.com/*",
-        "https://reddit.com/*",
-        "http://*.reddit.com/*",
-        "https://*.reddit.com/*"
-    ]
+        "tabs"
+    ],
+    "externally_connectable": {
+        "matches": [
+            "*://reddit.com/*",
+            "*://*.reddit.com/*"
+        ]
+    }
 }

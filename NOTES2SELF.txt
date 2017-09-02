@@ -1,9 +1,8 @@
 # TODO:
-- login does not persist across sessions
-  * double-check snoowrap_requester will automatically refresh upon expiration
 - search for posts based on current tab URL
 
 
+# append `return true;` to onMessage event handler for async
 # Have to use snoowrap_requester.then() to deal with async issues
 # Snoowrap can work with installed apps :)
 - snoowrap.getAuthUrl
