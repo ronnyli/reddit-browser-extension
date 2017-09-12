@@ -2,7 +2,8 @@
 - search for posts based on current tab URL
   - possible for search to not be restricted by subreddit
   - https://not-an-aardvark.github.io/snoowrap/snoowrap.html#search__anchor
-  - test this out
+  - https://github.com/not-an-aardvark/snoowrap/issues/64
+  - test this out (where to use type: 'link'?)
 
 
 # append `return true;` to onMessage event handler for async
