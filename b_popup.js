@@ -5620,7 +5620,7 @@ module.exports = ret;
 },{"./es5":13}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":300}],2:[function(require,module,exports){
+},{"_process":303}],2:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -14089,7 +14089,121 @@ if (typeof Proxy !== 'undefined') {
 
 module.exports = wrap;
 
-},{"harmony-reflect":291}],266:[function(require,module,exports){
+},{"harmony-reflect":294}],266:[function(require,module,exports){
+'use strict';
+
+var has = Object.prototype.hasOwnProperty;
+
+/**
+ * Decode a URI encoded string.
+ *
+ * @param {String} input The URI encoded string.
+ * @returns {String} The decoded string.
+ * @api private
+ */
+function decode(input) {
+  return decodeURIComponent(input.replace(/\+/g, ' '));
+}
+
+/**
+ * Simple query string parser.
+ *
+ * @param {String} query The query string that needs to be parsed.
+ * @returns {Object}
+ * @api public
+ */
+function querystring(query) {
+  var parser = /([^=?&]+)=?([^&]*)/g
+    , result = {}
+    , part;
+
+  //
+  // Little nifty parsing hack, leverage the fact that RegExp.exec increments
+  // the lastIndex property so we can continue executing this loop until we've
+  // parsed all results.
+  //
+  for (;
+    part = parser.exec(query);
+    result[decode(part[1])] = decode(part[2])
+  );
+
+  return result;
+}
+
+/**
+ * Transform a query string to an object.
+ *
+ * @param {Object} obj Object that should be transformed.
+ * @param {String} prefix Optional prefix.
+ * @returns {String}
+ * @api public
+ */
+function querystringify(obj, prefix) {
+  prefix = prefix || '';
+
+  var pairs = [];
+
+  //
+  // Optionally prefix with a '?' if needed
+  //
+  if ('string' !== typeof prefix) prefix = '?';
+
+  for (var key in obj) {
+    if (has.call(obj, key)) {
+      pairs.push(encodeURIComponent(key) +'='+ encodeURIComponent(obj[key]));
+    }
+  }
+
+  return pairs.length ? prefix + pairs.join('&') : '';
+}
+
+//
+// Expose the module.
+//
+exports.stringify = querystringify;
+exports.parse = querystring;
+
+},{}],267:[function(require,module,exports){
+'use strict';
+
+/**
+ * Check if we're required to add a port number.
+ *
+ * @see https://url.spec.whatwg.org/#default-port
+ * @param {Number|String} port Port number we need to check
+ * @param {String} protocol Protocol we need to check against.
+ * @returns {Boolean} Is it a default port for the given protocol
+ * @api private
+ */
+module.exports = function required(port, protocol) {
+  protocol = protocol.split(':')[0];
+  port = +port;
+
+  if (!port) return false;
+
+  switch (protocol) {
+    case 'http':
+    case 'ws':
+    return port !== 80;
+
+    case 'https':
+    case 'wss':
+    return port !== 443;
+
+    case 'ftp':
+    return port !== 21;
+
+    case 'gopher':
+    return port !== 70;
+
+    case 'file':
+    return false;
+  }
+
+  return port !== 0;
+};
+
+},{}],268:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14105,7 +14219,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var PromiseCopy = _bluebird2.default.getNewLibraryCopy();
 PromiseCopy.config({ cancellation: true, warnings: false });
 exports.default = PromiseCopy;
-},{"bluebird":1}],267:[function(require,module,exports){
+},{"bluebird":1}],269:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14152,7 +14266,7 @@ var MAX_TOKEN_LATENCY = exports.MAX_TOKEN_LATENCY = 10000;
 var MAX_API_INFO_AMOUNT = exports.MAX_API_INFO_AMOUNT = 100;
 var MAX_API_MORECHILDREN_AMOUNT = exports.MAX_API_MORECHILDREN_AMOUNT = 20;
 var MAX_LISTING_ITEMS = exports.MAX_LISTING_ITEMS = 100;
-},{}],268:[function(require,module,exports){
+},{}],270:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14175,7 +14289,7 @@ exports.default = function () {
 };
 
 var _helpers = require('./helpers.js');
-},{"./helpers.js":270}],269:[function(require,module,exports){
+},{"./helpers.js":272}],271:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14222,7 +14336,7 @@ exports.StatusCodeError = StatusCodeError;
 function rateLimitWarning(millisecondsUntilReset) {
   return 'Warning: ' + _constants.MODULE_NAME + ' temporarily stopped sending requests because reddit\'s ratelimit was exceeded. The request you attempted to send was queued, and will be sent to reddit when the current ratelimit period expires in ' + millisecondsUntilReset / 1000 + ' seconds.';
 }
-},{"./constants.js":267}],270:[function(require,module,exports){
+},{"./constants.js":269}],272:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14468,7 +14582,7 @@ function defineInspectFunc(obj, inspectFunc) {
 function requiredArg(argName) {
   throw new TypeError('Missing required argument ' + argName);
 }
-},{"./constants.js":267,"./objects/More.js":274,"lodash/find":213,"lodash/includes":221,"lodash/isEmpty":227,"lodash/keyBy":236,"lodash/omit":247,"lodash/partial":249,"lodash/property":252,"lodash/remove":253,"lodash/snakeCase":254,"util":291}],271:[function(require,module,exports){
+},{"./constants.js":269,"./objects/More.js":276,"lodash/find":213,"lodash/includes":221,"lodash/isEmpty":227,"lodash/keyBy":236,"lodash/omit":247,"lodash/partial":249,"lodash/property":252,"lodash/remove":253,"lodash/snakeCase":254,"util":294}],273:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14526,7 +14640,7 @@ var Comment = class Comment extends _VoteableContent2.default {
 };
 
 exports.default = Comment;
-},{"../helpers.js":270,"./Listing.js":272,"./More.js":274,"./VoteableContent.js":283}],272:[function(require,module,exports){
+},{"../helpers.js":272,"./Listing.js":274,"./More.js":276,"./VoteableContent.js":285}],274:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14828,7 +14942,7 @@ var Listing = class Listing extends Array {
 });
 
 exports.default = Listing;
-},{"../Promise.js":266,"../errors.js":269,"../helpers.js":270,"./More.js":274,"lodash/clone":205,"lodash/defaults":210,"lodash/defaultsDeep":211,"lodash/isEmpty":227,"lodash/omitBy":248,"lodash/pick":250,"url":320,"util":291}],273:[function(require,module,exports){
+},{"../Promise.js":268,"../errors.js":271,"../helpers.js":272,"./More.js":276,"lodash/clone":205,"lodash/defaults":210,"lodash/defaultsDeep":211,"lodash/isEmpty":227,"lodash/omitBy":248,"lodash/pick":250,"url":323,"util":294}],275:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -15161,7 +15275,7 @@ var LiveThread = class LiveThread extends _RedditContent2.default {
 
 exports.default = LiveThread;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../helpers.js":270,"./RedditContent.js":277,"events":294,"ws":291}],274:[function(require,module,exports){
+},{"../helpers.js":272,"./RedditContent.js":279,"events":297,"ws":294}],276:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15288,7 +15402,7 @@ function getNextIdSlice(children, startIndex, desiredAmount, limit) {
 
 var emptyChildren = exports.emptyChildren = new More({ children: [] });
 exports.default = More;
-},{"../Promise.js":266,"../constants.js":267,"../helpers.js":270,"lodash/concat":207,"lodash/flatten":215,"lodash/forEach":216,"lodash/pick":250,"lodash/remove":253}],275:[function(require,module,exports){
+},{"../Promise.js":268,"../constants.js":269,"../helpers.js":272,"lodash/concat":207,"lodash/flatten":215,"lodash/forEach":216,"lodash/pick":250,"lodash/remove":253}],277:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15443,7 +15557,7 @@ Object.defineProperty(MultiReddit.prototype, 'delete', { value() {
   }, configurable: true, writable: true });
 
 exports.default = MultiReddit;
-},{"./RedditContent.js":277}],276:[function(require,module,exports){
+},{"./RedditContent.js":279}],278:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15523,7 +15637,7 @@ var PrivateMessage = class PrivateMessage extends _ReplyableContent2.default {
 };
 
 exports.default = PrivateMessage;
-},{"../helpers.js":270,"./ReplyableContent.js":279}],277:[function(require,module,exports){
+},{"../helpers.js":272,"./ReplyableContent.js":281}],279:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15698,7 +15812,7 @@ _constants.HTTP_VERBS.forEach(function (method) {
 });
 
 exports.default = RedditContent;
-},{"../Promise.js":266,"../constants.js":267,"../helpers.js":270,"./Listing.js":272,"lodash/cloneDeep":206,"lodash/mapValues":241,"lodash/pick":250,"util":291}],278:[function(require,module,exports){
+},{"../Promise.js":268,"../constants.js":269,"../helpers.js":272,"./Listing.js":274,"lodash/cloneDeep":206,"lodash/mapValues":241,"lodash/pick":250,"util":294}],280:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15988,7 +16102,7 @@ var RedditUser = class RedditUser extends _RedditContent2.default {
 };
 
 exports.default = RedditUser;
-},{"../constants.js":267,"../errors.js":269,"./RedditContent.js":277}],279:[function(require,module,exports){
+},{"../constants.js":269,"../errors.js":271,"./RedditContent.js":279}],281:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -16099,7 +16213,7 @@ var ReplyableContent = class ReplyableContent extends _RedditContent2.default {
 };
 
 exports.default = ReplyableContent;
-},{"../helpers.js":270,"./RedditContent.js":277}],280:[function(require,module,exports){
+},{"../helpers.js":272,"./RedditContent.js":279}],282:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -16356,7 +16470,7 @@ var Submission = class Submission extends _VoteableContent2.default {
 };
 
 exports.default = Submission;
-},{"../helpers.js":270,"./VoteableContent.js":283}],281:[function(require,module,exports){
+},{"../helpers.js":272,"./VoteableContent.js":285}],283:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17833,7 +17947,7 @@ var Subreddit = class Subreddit extends _RedditContent2.default {
 };
 
 exports.default = Subreddit;
-},{"../Promise.js":266,"../errors.js":269,"../helpers.js":270,"./RedditContent.js":277,"fs":291,"lodash/chunk":204,"lodash/flatten":215,"lodash/map":240,"lodash/omit":247,"stream":318}],282:[function(require,module,exports){
+},{"../Promise.js":268,"../errors.js":271,"../helpers.js":272,"./RedditContent.js":279,"fs":294,"lodash/chunk":204,"lodash/flatten":215,"lodash/map":240,"lodash/omit":247,"stream":321}],284:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17847,7 +17961,7 @@ class UserList {
   }
 }
 exports.default = UserList;
-},{}],283:[function(require,module,exports){
+},{}],285:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18084,7 +18198,7 @@ Object.defineProperty(VoteableContent.prototype, 'delete', { value() {
   }, configurable: true, writable: true });
 
 exports.default = VoteableContent;
-},{"../Promise.js":266,"../helpers.js":270,"./ReplyableContent.js":279}],284:[function(require,module,exports){
+},{"../Promise.js":268,"../helpers.js":272,"./ReplyableContent.js":281}],286:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18271,7 +18385,7 @@ var WikiPage = class WikiPage extends _RedditContent2.default {
 };
 
 exports.default = WikiPage;
-},{"./RedditContent.js":277}],285:[function(require,module,exports){
+},{"./RedditContent.js":279}],287:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18405,7 +18519,7 @@ Object.defineProperty(exports, 'UserList', {
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./Comment.js":271,"./Listing.js":272,"./LiveThread.js":273,"./More.js":274,"./MultiReddit.js":275,"./PrivateMessage.js":276,"./RedditContent.js":277,"./RedditUser.js":278,"./ReplyableContent.js":279,"./Submission.js":280,"./Subreddit.js":281,"./UserList.js":282,"./VoteableContent.js":283,"./WikiPage.js":284}],286:[function(require,module,exports){
+},{"./Comment.js":273,"./Listing.js":274,"./LiveThread.js":275,"./More.js":276,"./MultiReddit.js":277,"./PrivateMessage.js":278,"./RedditContent.js":279,"./RedditUser.js":280,"./ReplyableContent.js":281,"./Submission.js":282,"./Subreddit.js":283,"./UserList.js":284,"./VoteableContent.js":285,"./WikiPage.js":286}],288:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18715,7 +18829,7 @@ function updateAccessToken() {
 * }
 */
 var rawRequest = exports.rawRequest = typeof XMLHttpRequest !== 'undefined' ? require('./xhr') : require('request-promise').defaults({ gzip: true });
-},{"./Promise.js":266,"./constants.js":267,"./errors.js":269,"./xhr":288,"lodash/includes":221,"lodash/merge":243,"request-promise":291}],287:[function(require,module,exports){
+},{"./Promise.js":268,"./constants.js":269,"./errors.js":271,"./xhr":290,"lodash/includes":221,"lodash/merge":243,"request-promise":294}],289:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -20455,7 +20569,7 @@ if (!module.parent && _helpers.isBrowser) {
 
 module.exports = snoowrap;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Promise.js":266,"./constants.js":267,"./create_config.js":268,"./errors.js":269,"./helpers.js":270,"./objects/index.js":285,"./request_handler.js":286,"lodash/defaults":210,"lodash/forOwn":217,"lodash/includes":221,"lodash/isEmpty":227,"lodash/map":240,"lodash/mapValues":241,"lodash/omit":247,"lodash/omitBy":248,"lodash/snakeCase":254,"lodash/values":262,"promise-chains":265,"util":291}],288:[function(require,module,exports){
+},{"./Promise.js":268,"./constants.js":269,"./create_config.js":270,"./errors.js":271,"./helpers.js":272,"./objects/index.js":287,"./request_handler.js":288,"lodash/defaults":210,"lodash/forOwn":217,"lodash/includes":221,"lodash/isEmpty":227,"lodash/map":240,"lodash/mapValues":241,"lodash/omit":247,"lodash/omitBy":248,"lodash/snakeCase":254,"lodash/values":262,"promise-chains":265,"util":294}],290:[function(require,module,exports){
 'use strict';
 
 var _Promise = require('./Promise.js');
@@ -20572,7 +20686,418 @@ module.exports = function rawRequest(options) {
     throw err;
   });
 };
-},{"./Promise.js":266,"./errors.js":269,"querystring":304,"url":320}],289:[function(require,module,exports){
+},{"./Promise.js":268,"./errors.js":271,"querystring":307,"url":323}],291:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var required = require('requires-port')
+  , qs = require('querystringify')
+  , protocolre = /^([a-z][a-z0-9.+-]*:)?(\/\/)?([\S\s]*)/i
+  , slashes = /^[A-Za-z][A-Za-z0-9+-.]*:\/\//;
+
+/**
+ * These are the parse rules for the URL parser, it informs the parser
+ * about:
+ *
+ * 0. The char it Needs to parse, if it's a string it should be done using
+ *    indexOf, RegExp using exec and NaN means set as current value.
+ * 1. The property we should set when parsing this value.
+ * 2. Indication if it's backwards or forward parsing, when set as number it's
+ *    the value of extra chars that should be split off.
+ * 3. Inherit from location if non existing in the parser.
+ * 4. `toLowerCase` the resulting value.
+ */
+var rules = [
+  ['#', 'hash'],                        // Extract from the back.
+  ['?', 'query'],                       // Extract from the back.
+  ['/', 'pathname'],                    // Extract from the back.
+  ['@', 'auth', 1],                     // Extract from the front.
+  [NaN, 'host', undefined, 1, 1],       // Set left over value.
+  [/:(\d+)$/, 'port', undefined, 1],    // RegExp the back.
+  [NaN, 'hostname', undefined, 1, 1]    // Set left over.
+];
+
+/**
+ * These properties should not be copied or inherited from. This is only needed
+ * for all non blob URL's as a blob URL does not include a hash, only the
+ * origin.
+ *
+ * @type {Object}
+ * @private
+ */
+var ignore = { hash: 1, query: 1 };
+
+/**
+ * The location object differs when your code is loaded through a normal page,
+ * Worker or through a worker using a blob. And with the blobble begins the
+ * trouble as the location object will contain the URL of the blob, not the
+ * location of the page where our code is loaded in. The actual origin is
+ * encoded in the `pathname` so we can thankfully generate a good "default"
+ * location from it so we can generate proper relative URL's again.
+ *
+ * @param {Object|String} loc Optional default location object.
+ * @returns {Object} lolcation object.
+ * @api public
+ */
+function lolcation(loc) {
+  loc = loc || global.location || {};
+
+  var finaldestination = {}
+    , type = typeof loc
+    , key;
+
+  if ('blob:' === loc.protocol) {
+    finaldestination = new URL(unescape(loc.pathname), {});
+  } else if ('string' === type) {
+    finaldestination = new URL(loc, {});
+    for (key in ignore) delete finaldestination[key];
+  } else if ('object' === type) {
+    for (key in loc) {
+      if (key in ignore) continue;
+      finaldestination[key] = loc[key];
+    }
+
+    if (finaldestination.slashes === undefined) {
+      finaldestination.slashes = slashes.test(loc.href);
+    }
+  }
+
+  return finaldestination;
+}
+
+/**
+ * @typedef ProtocolExtract
+ * @type Object
+ * @property {String} protocol Protocol matched in the URL, in lowercase.
+ * @property {Boolean} slashes `true` if protocol is followed by "//", else `false`.
+ * @property {String} rest Rest of the URL that is not part of the protocol.
+ */
+
+/**
+ * Extract protocol information from a URL with/without double slash ("//").
+ *
+ * @param {String} address URL we want to extract from.
+ * @return {ProtocolExtract} Extracted information.
+ * @api private
+ */
+function extractProtocol(address) {
+  var match = protocolre.exec(address);
+
+  return {
+    protocol: match[1] ? match[1].toLowerCase() : '',
+    slashes: !!match[2],
+    rest: match[3]
+  };
+}
+
+/**
+ * Resolve a relative URL pathname against a base URL pathname.
+ *
+ * @param {String} relative Pathname of the relative URL.
+ * @param {String} base Pathname of the base URL.
+ * @return {String} Resolved pathname.
+ * @api private
+ */
+function resolve(relative, base) {
+  var path = (base || '/').split('/').slice(0, -1).concat(relative.split('/'))
+    , i = path.length
+    , last = path[i - 1]
+    , unshift = false
+    , up = 0;
+
+  while (i--) {
+    if (path[i] === '.') {
+      path.splice(i, 1);
+    } else if (path[i] === '..') {
+      path.splice(i, 1);
+      up++;
+    } else if (up) {
+      if (i === 0) unshift = true;
+      path.splice(i, 1);
+      up--;
+    }
+  }
+
+  if (unshift) path.unshift('');
+  if (last === '.' || last === '..') path.push('');
+
+  return path.join('/');
+}
+
+/**
+ * The actual URL instance. Instead of returning an object we've opted-in to
+ * create an actual constructor as it's much more memory efficient and
+ * faster and it pleases my OCD.
+ *
+ * @constructor
+ * @param {String} address URL we want to parse.
+ * @param {Object|String} location Location defaults for relative paths.
+ * @param {Boolean|Function} parser Parser for the query string.
+ * @api public
+ */
+function URL(address, location, parser) {
+  if (!(this instanceof URL)) {
+    return new URL(address, location, parser);
+  }
+
+  var relative, extracted, parse, instruction, index, key
+    , instructions = rules.slice()
+    , type = typeof location
+    , url = this
+    , i = 0;
+
+  //
+  // The following if statements allows this module two have compatibility with
+  // 2 different API:
+  //
+  // 1. Node.js's `url.parse` api which accepts a URL, boolean as arguments
+  //    where the boolean indicates that the query string should also be parsed.
+  //
+  // 2. The `URL` interface of the browser which accepts a URL, object as
+  //    arguments. The supplied object will be used as default values / fall-back
+  //    for relative paths.
+  //
+  if ('object' !== type && 'string' !== type) {
+    parser = location;
+    location = null;
+  }
+
+  if (parser && 'function' !== typeof parser) parser = qs.parse;
+
+  location = lolcation(location);
+
+  //
+  // Extract protocol information before running the instructions.
+  //
+  extracted = extractProtocol(address || '');
+  relative = !extracted.protocol && !extracted.slashes;
+  url.slashes = extracted.slashes || relative && location.slashes;
+  url.protocol = extracted.protocol || location.protocol || '';
+  address = extracted.rest;
+
+  //
+  // When the authority component is absent the URL starts with a path
+  // component.
+  //
+  if (!extracted.slashes) instructions[2] = [/(.*)/, 'pathname'];
+
+  for (; i < instructions.length; i++) {
+    instruction = instructions[i];
+    parse = instruction[0];
+    key = instruction[1];
+
+    if (parse !== parse) {
+      url[key] = address;
+    } else if ('string' === typeof parse) {
+      if (~(index = address.indexOf(parse))) {
+        if ('number' === typeof instruction[2]) {
+          url[key] = address.slice(0, index);
+          address = address.slice(index + instruction[2]);
+        } else {
+          url[key] = address.slice(index);
+          address = address.slice(0, index);
+        }
+      }
+    } else if ((index = parse.exec(address))) {
+      url[key] = index[1];
+      address = address.slice(0, index.index);
+    }
+
+    url[key] = url[key] || (
+      relative && instruction[3] ? location[key] || '' : ''
+    );
+
+    //
+    // Hostname, host and protocol should be lowercased so they can be used to
+    // create a proper `origin`.
+    //
+    if (instruction[4]) url[key] = url[key].toLowerCase();
+  }
+
+  //
+  // Also parse the supplied query string in to an object. If we're supplied
+  // with a custom parser as function use that instead of the default build-in
+  // parser.
+  //
+  if (parser) url.query = parser(url.query);
+
+  //
+  // If the URL is relative, resolve the pathname against the base URL.
+  //
+  if (
+      relative
+    && location.slashes
+    && url.pathname.charAt(0) !== '/'
+    && (url.pathname !== '' || location.pathname !== '')
+  ) {
+    url.pathname = resolve(url.pathname, location.pathname);
+  }
+
+  //
+  // We should not add port numbers if they are already the default port number
+  // for a given protocol. As the host also contains the port number we're going
+  // override it with the hostname which contains no port number.
+  //
+  if (!required(url.port, url.protocol)) {
+    url.host = url.hostname;
+    url.port = '';
+  }
+
+  //
+  // Parse down the `auth` for the username and password.
+  //
+  url.username = url.password = '';
+  if (url.auth) {
+    instruction = url.auth.split(':');
+    url.username = instruction[0] || '';
+    url.password = instruction[1] || '';
+  }
+
+  url.origin = url.protocol && url.host && url.protocol !== 'file:'
+    ? url.protocol +'//'+ url.host
+    : 'null';
+
+  //
+  // The href is just the compiled result.
+  //
+  url.href = url.toString();
+}
+
+/**
+ * This is convenience method for changing properties in the URL instance to
+ * insure that they all propagate correctly.
+ *
+ * @param {String} part          Property we need to adjust.
+ * @param {Mixed} value          The newly assigned value.
+ * @param {Boolean|Function} fn  When setting the query, it will be the function
+ *                               used to parse the query.
+ *                               When setting the protocol, double slash will be
+ *                               removed from the final url if it is true.
+ * @returns {URL}
+ * @api public
+ */
+function set(part, value, fn) {
+  var url = this;
+
+  switch (part) {
+    case 'query':
+      if ('string' === typeof value && value.length) {
+        value = (fn || qs.parse)(value);
+      }
+
+      url[part] = value;
+      break;
+
+    case 'port':
+      url[part] = value;
+
+      if (!required(value, url.protocol)) {
+        url.host = url.hostname;
+        url[part] = '';
+      } else if (value) {
+        url.host = url.hostname +':'+ value;
+      }
+
+      break;
+
+    case 'hostname':
+      url[part] = value;
+
+      if (url.port) value += ':'+ url.port;
+      url.host = value;
+      break;
+
+    case 'host':
+      url[part] = value;
+
+      if (/:\d+$/.test(value)) {
+        value = value.split(':');
+        url.port = value.pop();
+        url.hostname = value.join(':');
+      } else {
+        url.hostname = value;
+        url.port = '';
+      }
+
+      break;
+
+    case 'protocol':
+      url.protocol = value.toLowerCase();
+      url.slashes = !fn;
+      break;
+
+    case 'pathname':
+      url.pathname = value.length && value.charAt(0) !== '/' ? '/' + value : value;
+
+      break;
+
+    default:
+      url[part] = value;
+  }
+
+  for (var i = 0; i < rules.length; i++) {
+    var ins = rules[i];
+
+    if (ins[4]) url[ins[1]] = url[ins[1]].toLowerCase();
+  }
+
+  url.origin = url.protocol && url.host && url.protocol !== 'file:'
+    ? url.protocol +'//'+ url.host
+    : 'null';
+
+  url.href = url.toString();
+
+  return url;
+}
+
+/**
+ * Transform the properties back in to a valid and full URL string.
+ *
+ * @param {Function} stringify Optional query stringify function.
+ * @returns {String}
+ * @api public
+ */
+function toString(stringify) {
+  if (!stringify || 'function' !== typeof stringify) stringify = qs.stringify;
+
+  var query
+    , url = this
+    , protocol = url.protocol;
+
+  if (protocol && protocol.charAt(protocol.length - 1) !== ':') protocol += ':';
+
+  var result = protocol + (url.slashes ? '//' : '');
+
+  if (url.username) {
+    result += url.username;
+    if (url.password) result += ':'+ url.password;
+    result += '@';
+  }
+
+  result += url.host + url.pathname;
+
+  query = 'object' === typeof url.query ? stringify(url.query) : url.query;
+  if (query) result += '?' !== query.charAt(0) ? '?'+ query : query;
+
+  if (url.hash) result += url.hash;
+
+  return result;
+}
+
+URL.prototype = { set: set, toString: toString };
+
+//
+// Expose the URL parser and some additional properties that might be useful for
+// others or testing.
+//
+URL.extractProtocol = extractProtocol;
+URL.location = lolcation;
+URL.qs = qs;
+
+module.exports = URL;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"querystringify":266,"requires-port":267}],292:[function(require,module,exports){
 /**
  * Get the current URL.
  *
@@ -20580,6 +21105,7 @@ module.exports = function rawRequest(options) {
  *   is found.
  */
 function getCurrentTabUrl(callback) {
+  var URL = require('url-parse');
   // Query filter to be passed to chrome.tabs.query - see
   // https://developer.chrome.com/extensions/tabs#method-query
   var queryInfo = {
@@ -20605,13 +21131,13 @@ function getCurrentTabUrl(callback) {
     // "url" properties.
     console.assert(typeof url == 'string', 'tab.url should be a string');
 
-    callback(url);
+    callback(new URL(url));
   });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   getCurrentTabUrl(function(url) {
-    document.getElementById("newpostURL").value = url;
+    document.getElementById("newpostURL").value = url.host + url.pathname;
   });
 });
 
@@ -20625,10 +21151,10 @@ var auth_flow = (function() {
   var user_info_div;
   var post_info_div;
   var newpost;
+  var search_button;
 
   // API calls
-
-  function getUserInfo(snoowrap_requester_json) {
+  function newSnoowrap(snoowrap_requester_json) {
     var j = JSON.parse(snoowrap_requester_json);
     const r = new snoowrap({
       userAgent: j.userAgent,
@@ -20636,17 +21162,16 @@ var auth_flow = (function() {
       clientSecret: '',
       refreshToken: j.refreshToken
     });
+    return r;
+  }
+
+  function getUserInfo(snoowrap_requester_json) {
+    const r = newSnoowrap(snoowrap_requester_json);
     r.getMe().then(onUserInfoFetched)
   }
 
   function redditSubmit(snoowrap_requester_json) {
-    var j = JSON.parse(snoowrap_requester_json);
-    const r = new snoowrap({
-      userAgent: j.userAgent,
-      clientId: j.clientId,
-      clientSecret: '',
-      refreshToken: j.refreshToken
-    });
+    const r = newSnoowrap(snoowrap_requester_json);
     var link = document.querySelector('#newpostURL').value;
     console.log('making a post for', link);
     r.submitLink({
@@ -20659,6 +21184,21 @@ var auth_flow = (function() {
     })
     .catch(function (err){
       populatePostInfo(err);
+    });
+  }
+
+  function redditSearch(snoowrap_requester_json) {
+    const r = newSnoowrap(snoowrap_requester_json);
+    getCurrentTabUrl(function(url) {
+      console.log('searching Reddit for posts related to', url.host + url.pathname);
+      r.search({
+        query: "url:" + url.host + url.pathname,
+        restrictSr: false,
+        time: 'all',
+        sort: 'relevance',
+        syntax: 'lucene'
+      })
+      .then(console.log);
     });
   }
 
@@ -20730,6 +21270,22 @@ var auth_flow = (function() {
     return false;
   }
 
+  function searchPost() {
+    chrome.runtime.sendMessage({
+        'action' : 'getSnoowrap',
+        'interactive' : true
+      },
+      function(snoowrap_requester_json) {
+        console.log(snoowrap_requester_json);
+        if (snoowrap_requester_json) {
+          redditSearch(snoowrap_requester_json);
+        } else {
+          populatePostInfo('Error: searchPost message passing');
+        }
+    });
+    return false;
+  }
+
   function revokeToken() {
     // We are opening the web page that allows user to revoke their token.
     window.open('https://github.com/settings/applications');
@@ -20757,16 +21313,20 @@ var auth_flow = (function() {
       newpost = document.querySelector('#newpost');
       newpost.onsubmit = submitPost;
 
-      console.log(signin_button, revoke_button, user_info_div);
+      search_button = document.querySelector('#search');
+      search_button.onclick = searchPost;
+
+      console.log(signin_button, revoke_button, user_info_div, search_button);
 
       showButton(signin_button);
+      showButton(search_button);
     }
   };
 })();
 
 window.onload = auth_flow.onload;
 
-},{"snoowrap":287}],290:[function(require,module,exports){
+},{"snoowrap":289,"url-parse":291}],293:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -20882,9 +21442,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],291:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
 
-},{}],292:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -22592,7 +23152,7 @@ function numberIsNaN (obj) {
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":290,"ieee754":295}],293:[function(require,module,exports){
+},{"base64-js":293,"ieee754":298}],296:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -22703,7 +23263,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":297}],294:[function(require,module,exports){
+},{"../../is-buffer/index.js":300}],297:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23007,7 +23567,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],295:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -23093,7 +23653,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],296:[function(require,module,exports){
+},{}],299:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -23118,7 +23678,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],297:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -23141,14 +23701,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],298:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],299:[function(require,module,exports){
+},{}],302:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -23195,7 +23755,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 }
 
 }).call(this,require('_process'))
-},{"_process":300}],300:[function(require,module,exports){
+},{"_process":303}],303:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -23381,7 +23941,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],301:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -23918,7 +24478,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],302:[function(require,module,exports){
+},{}],305:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24004,7 +24564,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],303:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24091,16 +24651,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],304:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":302,"./encode":303}],305:[function(require,module,exports){
+},{"./decode":305,"./encode":306}],308:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":306}],306:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":309}],309:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -24176,7 +24736,7 @@ function forEach(xs, f) {
     f(xs[i], i);
   }
 }
-},{"./_stream_readable":308,"./_stream_writable":310,"core-util-is":293,"inherits":296,"process-nextick-args":299}],307:[function(require,module,exports){
+},{"./_stream_readable":311,"./_stream_writable":313,"core-util-is":296,"inherits":299,"process-nextick-args":302}],310:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -24203,7 +24763,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":309,"core-util-is":293,"inherits":296}],308:[function(require,module,exports){
+},{"./_stream_transform":312,"core-util-is":296,"inherits":299}],311:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -25140,7 +25700,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":306,"./internal/streams/BufferList":311,"./internal/streams/stream":312,"_process":300,"core-util-is":293,"events":294,"inherits":296,"isarray":298,"process-nextick-args":299,"safe-buffer":317,"string_decoder/":319,"util":291}],309:[function(require,module,exports){
+},{"./_stream_duplex":309,"./internal/streams/BufferList":314,"./internal/streams/stream":315,"_process":303,"core-util-is":296,"events":297,"inherits":299,"isarray":301,"process-nextick-args":302,"safe-buffer":320,"string_decoder/":322,"util":294}],312:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -25323,7 +25883,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":306,"core-util-is":293,"inherits":296}],310:[function(require,module,exports){
+},{"./_stream_duplex":309,"core-util-is":296,"inherits":299}],313:[function(require,module,exports){
 (function (process){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, encoding, cb), and it'll handle all
@@ -25869,7 +26429,7 @@ function CorkedRequest(state) {
   };
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":306,"./internal/streams/stream":312,"_process":300,"core-util-is":293,"inherits":296,"process-nextick-args":299,"safe-buffer":317,"util-deprecate":322}],311:[function(require,module,exports){
+},{"./_stream_duplex":309,"./internal/streams/stream":315,"_process":303,"core-util-is":296,"inherits":299,"process-nextick-args":302,"safe-buffer":320,"util-deprecate":325}],314:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -25934,13 +26494,13 @@ BufferList.prototype.concat = function (n) {
   }
   return ret;
 };
-},{"safe-buffer":317}],312:[function(require,module,exports){
+},{"safe-buffer":320}],315:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":294}],313:[function(require,module,exports){
+},{"events":297}],316:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":314}],314:[function(require,module,exports){
+},{"./readable":317}],317:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -25949,13 +26509,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":306,"./lib/_stream_passthrough.js":307,"./lib/_stream_readable.js":308,"./lib/_stream_transform.js":309,"./lib/_stream_writable.js":310}],315:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":309,"./lib/_stream_passthrough.js":310,"./lib/_stream_readable.js":311,"./lib/_stream_transform.js":312,"./lib/_stream_writable.js":313}],318:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":314}],316:[function(require,module,exports){
+},{"./readable":317}],319:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":310}],317:[function(require,module,exports){
+},{"./lib/_stream_writable.js":313}],320:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -26017,7 +26577,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":292}],318:[function(require,module,exports){
+},{"buffer":295}],321:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -26146,7 +26706,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":294,"inherits":296,"readable-stream/duplex.js":305,"readable-stream/passthrough.js":313,"readable-stream/readable.js":314,"readable-stream/transform.js":315,"readable-stream/writable.js":316}],319:[function(require,module,exports){
+},{"events":297,"inherits":299,"readable-stream/duplex.js":308,"readable-stream/passthrough.js":316,"readable-stream/readable.js":317,"readable-stream/transform.js":318,"readable-stream/writable.js":319}],322:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -26419,7 +26979,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":317}],320:[function(require,module,exports){
+},{"safe-buffer":320}],323:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -27153,7 +27713,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":321,"punycode":301,"querystring":304}],321:[function(require,module,exports){
+},{"./util":324,"punycode":304,"querystring":307}],324:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -27171,7 +27731,7 @@ module.exports = {
   }
 };
 
-},{}],322:[function(require,module,exports){
+},{}],325:[function(require,module,exports){
 (function (global){
 
 /**
@@ -27242,4 +27802,4 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[289]);
+},{}]},{},[292]);
