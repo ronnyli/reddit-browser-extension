@@ -1,8 +1,6 @@
 # TODO:
 - display search results
   - paginate search results
-- check for login status when popup.html page is opened
-  - don't display sign-in button if already logged in
 - clean up code organization
 - log-in persistence doesn't work as expected
 
