@@ -5,6 +5,7 @@
  *   is found.
  */
 function getCurrentTabUrl(callback) {
+  var URL = require('url-parse');
   // Query filter to be passed to chrome.tabs.query - see
   // https://developer.chrome.com/extensions/tabs#method-query
   var queryInfo = {
@@ -30,13 +31,13 @@ function getCurrentTabUrl(callback) {
     // "url" properties.
     console.assert(typeof url == 'string', 'tab.url should be a string');
 
-    callback(url);
+    callback(new URL(url));
   });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   getCurrentTabUrl(function(url) {
-    document.getElementById("newpostURL").value = url;
+    document.getElementById("newpostURL").value = url.host + url.pathname;
   });
 });
 
@@ -50,6 +51,7 @@ var auth_flow = (function() {
   var user_info_div;
   var post_info_div;
   var newpost;
+  var search_button;
 
   // API calls
   function newSnoowrap(snoowrap_requester_json) {
@@ -82,6 +84,21 @@ var auth_flow = (function() {
     })
     .catch(function (err){
       populatePostInfo(err);
+    });
+  }
+
+  function redditSearch(snoowrap_requester_json) {
+    const r = newSnoowrap(snoowrap_requester_json);
+    getCurrentTabUrl(function(url) {
+      console.log('searching Reddit for posts related to', url.host + url.pathname);
+      r.search({
+        query: "url:" + url.host + url.pathname,
+        restrictSr: false,
+        time: 'all',
+        sort: 'relevance',
+        syntax: 'lucene'
+      })
+      .then(console.log);
     });
   }
 
@@ -153,6 +170,22 @@ var auth_flow = (function() {
     return false;
   }
 
+  function searchPost() {
+    chrome.runtime.sendMessage({
+        'action' : 'getSnoowrap',
+        'interactive' : true
+      },
+      function(snoowrap_requester_json) {
+        console.log(snoowrap_requester_json);
+        if (snoowrap_requester_json) {
+          redditSearch(snoowrap_requester_json);
+        } else {
+          populatePostInfo('Error: searchPost message passing');
+        }
+    });
+    return false;
+  }
+
   function revokeToken() {
     // We are opening the web page that allows user to revoke their token.
     window.open('https://github.com/settings/applications');
@@ -180,9 +213,13 @@ var auth_flow = (function() {
       newpost = document.querySelector('#newpost');
       newpost.onsubmit = submitPost;
 
-      console.log(signin_button, revoke_button, user_info_div);
+      search_button = document.querySelector('#search');
+      search_button.onclick = searchPost;
+
+      console.log(signin_button, revoke_button, user_info_div, search_button);
 
       showButton(signin_button);
+      showButton(search_button);
     }
   };
 })();

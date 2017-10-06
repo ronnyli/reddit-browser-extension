@@ -30,7 +30,7 @@ const snoowrap = require('snoowrap');
 
       var authenticationUrl = snoowrap.getAuthUrl({
         clientId: clientId,
-        scope: ['identity', 'submit'],
+        scope: ['identity', 'read', 'submit'],
         redirectUri: redirectUri,
         permanent: true,
         state: 'fe211bebc52eb3da9bef8db6e63104d3' // a random string, this could be validated when the user is redirected back

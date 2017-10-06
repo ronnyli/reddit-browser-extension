@@ -1,11 +1,12 @@
 # TODO:
-- search for posts based on current tab URL
-  - possible for search to not be restricted by subreddit
-  - https://not-an-aardvark.github.io/snoowrap/snoowrap.html#search__anchor
-  - https://github.com/not-an-aardvark/snoowrap/issues/64
-  - test this out (where to use type: 'link'?)
+- display search results
+  - paginate search results
+- check for login status when popup.html page is opened
+  - don't display sign-in button if already logged in
+- clean up code organization
+- log-in persistence doesn't work as expected
 
-
+# searching for URLs should use lucene syntax instead of plain
 # append `return true;` to onMessage event handler for async
 # Have to use snoowrap_requester.then() to deal with async issues
 # Snoowrap can work with installed apps :)
